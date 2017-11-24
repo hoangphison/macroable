@@ -1,10 +1,7 @@
 # A trait to dynamically add methods to a class
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/macroable.svg?style=flat-square)](https://packagist.org/packages/spatie/macroable)
-[![Build Status](https://img.shields.io/travis/spatie/macroable/master.svg?style=flat-square)](https://travis-ci.org/spatie/macroable)
-[![SensioLabsInsight](https://img.shields.io/sensiolabs/i/c3dbed0e-9794-4c54-b40c-ccaf5a1394de.svg?style=flat-square)](https://insight.sensiolabs.com/projects/c3dbed0e-9794-4c54-b40c-ccaf5a1394de)
-[![Quality Score](https://img.shields.io/scrutinizer/g/spatie/macroable.svg?style=flat-square)](https://scrutinizer-ci.com/g/spatie/macroable)
-[![Total Downloads](https://img.shields.io/packagist/dt/spatie/macroable.svg?style=flat-square)](https://packagist.org/packages/spatie/macroable)
+[![Build Status](https://travis-ci.org/hoangphison/macroable.svg?branch=master)](https://travis-ci.org/hoangphison/macroable)
+[![StyleCI](https://styleci.io/repos/111900984/shield?branch=master)](https://styleci.io/repos/111900984)
 
 This package provides a trait that, when applied to a class, makes it possible to add methods to that class at runtime.
 
@@ -29,7 +26,7 @@ The idea of a macroable trait and the implementation is taken from [the `macroab
 You can install the package via composer:
 
 ```bash
-composer require spatie/macroable
+composer require hoangphison/macroable
 ```
 
 ## Usage
