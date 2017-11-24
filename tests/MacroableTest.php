@@ -6,6 +6,48 @@ use BadMethodCallException;
 use PHPUnit\Framework\TestCase;
 use Spatie\Macroable\Macroable;
 
+class AnonymousClass1
+{
+    private $privateVariable = 'privateValue';
+
+    use Macroable;
+
+    private static function getPrivateStatic()
+    {
+        return 'privateStaticValue';
+    }
+}
+
+class AnonymousClass2
+{
+    public function __invoke()
+    {
+        return 'newValue';
+    }
+}
+
+class AnonymousClass3
+{
+    private function secretMixinMethod()
+    {
+        return 'secret';
+    }
+
+    public function mixinMethodA()
+    {
+        return function ($value) {
+            return $this->mixinMethodB($value);
+        };
+    }
+
+    public function mixinMethodB()
+    {
+        return function ($value) {
+            return $this->privateVariable.'-'.$value;
+        };
+    }
+}
+
 class MacroableTest extends TestCase
 {
     protected $macroableClass;
@@ -13,89 +55,73 @@ class MacroableTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-
-        $this->macroableClass = new class() {
-            private $privateVariable = 'privateValue';
-
-            use Macroable;
-
-            private static function getPrivateStatic()
-            {
-                return 'privateStaticValue';
-            }
-        };
     }
 
     /** @test */
     public function a_new_macro_can_be_registered_and_called()
     {
-        $this->macroableClass::macro('newMethod', function () {
+        AnonymousClass1::macro('newMethod', function () {
             return 'newValue';
         });
 
-        $this->assertEquals('newValue', $this->macroableClass->newMethod());
+        $this->assertEquals('newValue', (new AnonymousClass1)->newMethod());
     }
 
     /** @test */
     public function a_new_macro_can_be_registered_and_called_statically()
     {
-        $this->macroableClass::macro('newMethod', function () {
+        AnonymousClass1::macro('newMethod', function () {
             return 'newValue';
         });
 
-        $this->assertEquals('newValue', $this->macroableClass::newMethod());
+        $this->assertEquals('newValue', AnonymousClass1::newMethod());
     }
 
     /** @test */
     public function a_class_can_be_registered_as_a_new_macro_and_be_invoked()
     {
-        $this->macroableClass::macro('newMethod', new class() {
-            public function __invoke()
-            {
-                return 'newValue';
-            }
-        });
+        AnonymousClass1::macro('newMethod', new AnonymousClass2);
 
-        $this->assertEquals('newValue', $this->macroableClass->newMethod());
-        $this->assertEquals('newValue', $this->macroableClass::newMethod());
+        $this->assertEquals('newValue', (new AnonymousClass1)->newMethod());
+        $this->assertEquals('newValue', AnonymousClass1::newMethod());
     }
 
     /** @test */
     public function it_passes_parameters_correctly()
     {
-        $this->macroableClass::macro('concatenate', function (...$strings) {
+        AnonymousClass1::macro('concatenate', function (...$strings) {
             return implode('-', $strings);
         });
 
-        $this->assertEquals('one-two-three', $this->macroableClass->concatenate('one', 'two', 'three'));
+        $this->assertEquals('one-two-three', (new AnonymousClass1)->concatenate('one', 'two', 'three'));
     }
 
     /** @test */
     public function registered_methods_are_bound_to_the_class()
     {
-        $this->macroableClass::macro('newMethod', function () {
+        AnonymousClass1::macro('newMethod', function () {
             return $this->privateVariable;
         });
 
-        $this->assertEquals('privateValue', $this->macroableClass->newMethod());
+        $this->assertEquals('privateValue', (new AnonymousClass1)->newMethod());
     }
 
     /** @test */
     public function it_can_work_on_static_methods()
     {
-        $this->macroableClass::macro('testStatic', function () {
+        AnonymousClass1::macro('testStatic', function () {
             return $this::getPrivateStatic();
         });
 
-        $this->assertEquals('privateStaticValue', $this->macroableClass->testStatic());
+        $this->assertEquals('privateStaticValue', (new AnonymousClass1)->testStatic());
     }
 
     /** @test */
     public function it_can_mixin_all_public_methods_from_another_class()
     {
-        $this->macroableClass::mixin($this->getMixinClass());
+        AnonymousClass1::mixin(new AnonymousClass3);
 
-        $this->assertEquals('privateValue-test', $this->macroableClass->mixinMethodA('test'));
+        $this->assertEquals('privateValue-test', (new AnonymousClass1)->mixinMethodA('test'));
     }
 
     /** @test */
@@ -103,7 +129,7 @@ class MacroableTest extends TestCase
     {
         $this->expectException(BadMethodCallException::class);
 
-        $this->macroableClass->nonExistingMethod();
+        (new AnonymousClass1)->nonExistingMethod();
     }
 
     /** @test */
@@ -111,30 +137,6 @@ class MacroableTest extends TestCase
     {
         $this->expectException(BadMethodCallException::class);
 
-        $this->macroableClass::nonExistingMethod();
-    }
-
-    protected function getMixinClass()
-    {
-        return new class() {
-            private function secretMixinMethod()
-            {
-                return 'secret';
-            }
-
-            public function mixinMethodA()
-            {
-                return function ($value) {
-                    return $this->mixinMethodB($value);
-                };
-            }
-
-            public function mixinMethodB()
-            {
-                return function ($value) {
-                    return $this->privateVariable.'-'.$value;
-                };
-            }
-        };
+        AnonymousClass1::nonExistingMethod();
     }
 }

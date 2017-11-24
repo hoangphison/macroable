@@ -15,9 +15,9 @@ trait Macroable
      * Register a custom macro.
      *
      * @param  string $name
-     * @param  object|callable  $macro
+     * @param  object|callable $macro
      */
-    public static function macro(string $name, $macro)
+    public static function macro($name, $macro)
     {
         static::$macros[$name] = $macro;
     }
@@ -25,7 +25,7 @@ trait Macroable
     /**
      * Mix another object into the class.
      *
-     * @param  object  $mixin
+     * @param  object $mixin
      */
     public static function mixin($mixin)
     {
@@ -40,7 +40,7 @@ trait Macroable
         }
     }
 
-    public static function hasMacro(string $name): bool
+    public static function hasMacro($name)
     {
         return isset(static::$macros[$name]);
     }
